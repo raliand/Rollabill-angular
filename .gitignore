@@ -46,3 +46,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 .firebaserc
+node_modules
+functions/node_modules
+.vscode/settings.json
