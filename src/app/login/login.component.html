@@ -1,0 +1,71 @@
+<div class="main-content">
+  <div class="container-fluid">
+    <div *ngIf="auth.user | async; then authenticated else guest">
+      <!-- template will replace this div -->
+    </div>
+    <!-- User NOT logged in -->
+    <ng-template #guest>
+      <div class="col-md-4">
+        <div class="main-content">
+          <div class="container-fluid">
+              <div class="card card-profile">
+                  <div class="card-avatar">
+                    <a href="/user-profile">
+                        <img class="img" src="../assets/img/faces/account.png" />
+                    </a>
+                  </div>
+
+                  <div class="content">
+                      <p class="card-content">
+                          Login to get started...
+                      </p>
+                      <button class="btn btn-danger btn-round" (click)="auth.googleLogin()">Connect Google</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>      
+    </ng-template>
+    <!-- User logged in -->
+    <ng-template #authenticated>
+    <div *ngIf="auth.user | async as user">
+        <div class="card card-profile">
+            <div class="card-avatar">
+                <a href="/user-profile">
+                    <img class="img" [src]="user.photoURL" />
+                </a>
+            </div>
+
+            <div class="content">
+                <h6 class="category text-gray">{{ user?.position }}</h6>
+                <h4 class="card-title">{{ user.displayName }}</h4>
+                <p class="card-content">
+                    {{ user?.tagLine }}
+                </p>
+                <button class="btn btn-danger btn-round" (click)="auth.signOut()">Logout</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="main-content">
+          <div class="container-fluid">
+              <div class="card card-profile">
+                  <div class="card-avatar">
+                    <a href="/user-profile">
+                        <img class="img" src="../assets/img/faces/account.png" />
+                    </a>
+                  </div>
+
+                  <div class="content">
+                      <p class="card-content">
+                          Login to get started...
+                      </p>
+                      <button class="btn btn-danger btn-round" (click)="auth.sageLogin()">Connect Sage</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

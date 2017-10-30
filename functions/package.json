@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "firebase-admin": "~5.4.0",
+    "firebase-functions": "^0.7.1",
+    "xero-node": "^2.10.1"
+  },
+  "private": true
+}

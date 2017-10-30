@@ -1,0 +1,138 @@
+<div class="main-content">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header" data-background-color="red">
+                    <h4 class="title">Edit Profile</h4>
+                    <p class="category">Complete your profile</p>
+                </div>
+                <div class="card-content">
+                    <div *ngIf="auth.clientSystem | async as clientSystem">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Company (disabled)</label>
+                                    <input type="text" class="form-control" [value]="clientSystem.name" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Username</label>
+                                    <input type="text" class="form-control" [value]="clientSystem.id">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Email address</label>
+                                    <input type="email" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Fist Name</label>
+                                    <input type="text" class="form-control"  [value]="clientSystem.status">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Last Name</label>
+                                    <input type="text" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Adress</label>
+                                    <input type="text" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">City</label>
+                                    <input type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Country</label>
+                                    <input type="text" class="form-control" >
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group form-black label-floating is-empty">
+                                    <label class="control-label">Postal Code</label>
+                                    <input type="text" class="form-control" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>About Me</label>
+                                    <div class="form-group form-black label-floating is-empty">
+                                        <label class="control-label"> Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo.</label>
+                                        <textarea class="form-control" rows="5"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-danger btn-round" (click)="authoriseXero()" >Update Profile</button>
+                        <div class="clearfix"></div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div *ngIf="auth.user | async as user">
+                <div class="card card-profile">
+                    <div class="card-avatar">
+                        <a href="/user-profile">
+                            <img class="img" [src]="user.photoURL" />
+                        </a>
+                    </div>
+        
+                    <div class="content">
+                        <h6 class="category text-gray">{{ user?.position }}</h6>
+                        <h4 class="card-title">{{ user.displayName }}</h4>
+                        <p class="card-content">
+                            {{ user?.tagLine }}
+                        </p>
+                        <button class="btn btn-danger btn-round" (click)="auth.signOut()">Logout</button>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="auth.clientSystem | async as clientSystem">
+                <div class="card card-profile">
+                    <div class="card-avatar">
+                        <a href="/user-profile">
+                            <img class="img" src="../assets/img/xero.png" />
+                        </a>
+                    </div>
+        
+                    <div class="content">
+                        <h6 class="category text-gray">{{ clientSystem?.position }}</h6>
+                        <h4 class="card-title">{{ clientSystem.name }}</h4>
+                        <p class="card-content">
+                            {{ clientSystem?.tagLine }}
+                        </p>
+                        <button class="btn btn-info btn-round" (click)="authoriseXeroLocal()">Connect to Xero</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
