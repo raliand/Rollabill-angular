@@ -410,7 +410,7 @@ function getXeroFullInvoice(userId, clientSystemId, xeroClient, invoiceId, callb
                                 .doc(invoiceId).collection('line_items')
                                 .add(tmpOrgL);
         })
-        deleteCollection('client_systems/invoices/payments').then(res =>{
+        deleteCollection(`client_systems/${clientSystemId}/invoices/${invoiceId}/payments`).then(res =>{
           payments.forEach(function(payment){
             //console.log(lineItem.toJSON())
             var tmpOrgP = payment.toJSON()
