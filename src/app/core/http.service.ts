@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Http, Headers} from '@angular/http';
+import {Http, Headers, RequestOptions} from '@angular/http';
 import * as firebase from 'firebase/app';
 
 @Injectable()
@@ -7,29 +7,28 @@ export class HttpService {
 
   constructor(private http: Http ) {}
 
-  createAuthorizationHeader(headers: Headers) {
+  createAuthorizationHeader(token: string) {
     firebase.auth().currentUser.getIdToken()
     .then(authToken => {
-      console.log('Creating auth headers')
-      headers.set('Content-Type', 'text/plain');
-      headers.set('Authorization', 'Bearer ' + authToken);
+      token = authToken;
     })     
   }
 
   get(url) {
-    let headers = new Headers();
-    this.createAuthorizationHeader(headers);
+    let authToken = '';
+    this.createAuthorizationHeader(authToken);
+    let headers = new Headers({'Authorization': 'Bearer ' + authToken});
     console.log(headers)
-    return this.http.get(url, {
-      headers: headers
-    });
+    let options = new RequestOptions();
+    options.headers = headers;
+    return this.http.get(url, options);
   }
 
   post(url, data) {
-    let headers = new Headers();
-    this.createAuthorizationHeader(headers);
-    return this.http.post(url, data, {
-      headers: headers
-    });
+    let headers = new Headers({'X-Requested-By':'Angular 2'});
+    //this.createAuthorizationHeader(headers);
+    let options = new RequestOptions();
+    options.headers = headers;
+    return this.http.post(url, data, options);
   }
 }

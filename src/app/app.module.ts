@@ -18,11 +18,13 @@ import { MapsComponent } from './maps/maps.component';
 import { NotificationsComponent } from './notifications/notifications.component';
 import { UpgradeComponent } from './upgrade/upgrade.component';
 
+//Andrey added modules
 import { AngularFireModule } from 'angularfire2';
 import { CoreModule } from './core/core.module';
 import { AuthGuard } from './core/auth.guard';
 import { LoginComponent } from './login/login.component';
 import { OAuthModule } from 'angular-oauth2-oidc';
+import { LoadingModule } from 'ngx-loading';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBYCRGNQiEJv_LqbnKCGn7Hm2NcKO2_h9M",
@@ -56,7 +58,8 @@ const firebaseConfig = {
     AngularFireModule.initializeApp(firebaseConfig),
     AppRoutingModule,
     CoreModule,
-    OAuthModule.forRoot() 
+    OAuthModule.forRoot(),
+    LoadingModule
   ],
   providers: [AuthGuard],
   bootstrap: [AppComponent]
