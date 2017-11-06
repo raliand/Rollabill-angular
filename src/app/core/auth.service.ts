@@ -19,11 +19,11 @@ export interface User {
 }
 
 export interface ClientSystem {
+  id?: string;
   client_id?: string;
   name?: string;
   type?: string;
   status?: string;
-  nr_connects?: number;
   access_token?: string;
   access_token_secret?: string;
 }

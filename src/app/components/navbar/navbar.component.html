@@ -17,25 +17,27 @@
                         <p class="hidden-lg hidden-md">Dashboard</p>
                     </a>
                 </li>
-                <li class="dropdown">
+                <li class="dropdown" *ngIf="auth.clientSystem | async as clientSystem">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        {{clientSystem.status}}
                         <i class="material-icons">notifications</i>
-                        <span class="notification">5</span>
+                        <span class="notification">X</span>
                         <p class="hidden-lg hidden-md">Notifications</p>
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Mike John responded to your email</a></li>
-                        <li><a href="#">You have 5 new tasks</a></li>
-                        <li><a href="#">You're now friend with Andrew</a></li>
-                        <li><a href="#">Another Notification</a></li>
-                        <li><a href="#">Another One</a></li>
+                    <ul [ngSwitch]="clientSystem?.status" class="dropdown-menu">
+                        <li *ngSwitchCase="'disconnected'"><button class="btn btn-info" (click)="authoriseXero()">Connect to Xero</button></li>
+                        <li *ngSwitchCase="'connected'"><button class="btn btn-info" (click)="getXeroInvoices()">Get Xero Invoices</button></li>
+                        <li *ngSwitchCase="'connected'"><button class="btn btn-info" (click)="getXeroContacts()">Get Xero Contacts</button></li>
+                        <li *ngSwitchCase="'connected'"><button class="btn btn-info" (click)="getXeroItems()">Get Xero Items</button></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#pablo" class="dropdown-toggle" data-toggle="dropdown">
-                       <i class="material-icons">person</i>
+                    <div *ngIf="auth.user | async as user">
+                    <a href="/user-profile" class="dropdown-toggle" style="border-radius: 30" data-toggle="dropdown">
+                        <img class="img" [src]="user?.photoURL" />
                        <p class="hidden-lg hidden-md">Profile</p>
                     </a>
+                    </div>
                 </li>
             </ul>
 

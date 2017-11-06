@@ -50,3 +50,4 @@ node_modules
 functions/node_modules
 .vscode/settings.json
 dist
+firebase-debug.log

@@ -3012,6 +3012,23 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
   vertical-align: middle;
   display: block;
 }
+.navbar .notification-icon {
+  position: absolute;
+  top: 25px;
+  border: 1px solid #FFF;
+  right: 5px;
+  font-size: 9px;
+  background: #f44336;
+  color: #FFFFFF;
+  min-width: 20px;
+  padding: 0px 0px;
+  height: 20px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 19px;
+  vertical-align: middle;
+  display: block;
+}
 .navbar .navbar-text {
   color: inherit;
   margin-top: 15px;

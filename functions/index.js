@@ -17,7 +17,6 @@ const firestore = admin.firestore();
 
 const authenticate = (req, res, next) => {
   cors(req, res, () => {
-    //console.log(req.headers);
     if(req.url.startsWith('/access')) {
       console.log('Skipping auth token')
       next();
@@ -28,7 +27,6 @@ const authenticate = (req, res, next) => {
       res.status(403).send('Unauthorized: No Bearer');
       return;
     }
-    //const idToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6ImIxYzk0N2ExZWIwN2M4ZjRkMTJhZDUwMWMwNjEwZWY0YzQ1NDExNmYifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcm9sbGFiaWxsLTU1MDNhIiwibmFtZSI6IkFuZHJleSBUY2hpb3JuaXkiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDQuZ29vZ2xldXNlcmNvbnRlbnQuY29tLy1MT3FoYlFSSDdFTS9BQUFBQUFBQUFBSS9BQUFBQUFBQUFBQS9CbEptVnFiNkhSVS9waG90by5qcGciLCJhdWQiOiJyb2xsYWJpbGwtNTUwM2EiLCJhdXRoX3RpbWUiOjE1MDkyODkwNzQsInVzZXJfaWQiOiJ0Nkw4OHJXQ0FGZGhrMjRUS1pwTmlpY0x0OVMyIiwic3ViIjoidDZMODhyV0NBRmRoazI0VEtacE5paWNMdDlTMiIsImlhdCI6MTUwOTI5NjI3NywiZXhwIjoxNTA5Mjk5ODc3LCJlbWFpbCI6InJhbGlhbmQxQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTA2OTE5NTgxOTEyMTU3OTUyNTQ4Il0sImVtYWlsIjpbInJhbGlhbmQxQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.kPRCC75DdFj0OEhSUaupVliy4RehZq-EgMzAXJlD8wJOSeZtx7wTSMpKblgssGvjC1YmrHLW4UZNYv3duOhaKyKXWzU0dDbI55TgAmMTHv8i6sTYln-FRS9AUdiI2lOyvIMvP4x0577n46dfeVTL_cVaz7RdHliO97BOv8dzYghrxD_8jLs9pjOxjGWstPgyzVgXWUyUjGRz6uTlcizrC5Ww0ofdHZfCJc_Mj6WLjOrgT5SW0TC_qke1yE6waNjH7whDGMKWTmpDJBhYCeSo2XLlhQAxyoBYJorcFmgKVBDYG6KC9ZeKrI4BNxsVNfPwOn0ALVv5UvX2sf6fXrsfeQ";
     const idToken = req.headers.authorization.split('Bearer ')[1];
 
     admin.auth().verifyIdToken(idToken).then(decodedIdToken => {
@@ -44,7 +42,7 @@ const authenticate = (req, res, next) => {
 
 app.use(authenticate);
 
-function getXeroClientFromDB(userId,clientSystemId, callback) {
+function getXeroClientFromDB(userId, clientSystemId, callback) {
 
   var config =  {
     authorizeCallbackUrl: `https://us-central1-rollabill-5503a.cloudfunctions.net/app/access/${userId}/${clientSystemId}`,
@@ -293,15 +291,15 @@ function getXeroOrganizations(userId, clientSystemId, callback){
     .then(function(organisations) {
       //console.log(organisations);
       organisations.forEach(function(organization) {
-        var tmpOrg = organization._obj;
+        var tmpOrg = organization.toJSON();
         
         var count = 0
         organization.Addresses.forEach(function(address) {
-          tmpOrg[`Address${count++}`] = address._obj;
+          tmpOrg[`Address${count++}`] = address.toJSON();
         })
         count = 0
         organization.Phones.forEach(function(phone) {
-          tmpOrg[`Phone${count++}`] = phone._obj;
+          tmpOrg[`Phone${count++}`] = phone.toJSON();
         })
         delete tmpOrg.Addresses;
         delete tmpOrg.Phones;
@@ -315,7 +313,7 @@ function getXeroOrganizations(userId, clientSystemId, callback){
     })
     .catch(function(err) {
       console.log(err)
-      sendNotification(userId,'Error updating - please login to Xero');
+      //sendNotification(userId,'Error updating - please login to Xero');
       callback(false);
     })
   })
@@ -333,11 +331,11 @@ function getXeroContacts(userId, clientSystemId, callback){
         
         var count = 0
         contact.Addresses.forEach(function(address) {
-          tmpOrg[`Address${count++}`] = address._obj;
+          tmpOrg[`Address${count++}`] = address.toJSON();
         })
         count = 0
         contact.Phones.forEach(function(phone) {
-          tmpOrg[`Phone${count++}`] = phone._obj;
+          tmpOrg[`Phone${count++}`] = phone.toJSON();
         })
 
         delete tmpOrg.Addresses;
@@ -386,6 +384,29 @@ function getXeroItems(userId, clientSystemId, callback){
   })
 }
 
+function resetXeroInvoicesStats(userId, clientSystemId, callback){
+  var csRef = firestore.collection('client_systems').doc(clientSystemId);
+  var data = {
+    InvoicesStats: {
+      NotPaidPayableInvoices: 0,
+      NotPaidReceivebleInvoices: 0,
+      AmountOwing: 0,
+      AmountOwed: 0,
+      PaidPayableInvoices: 0,
+      PaidReceivebleInvoices: 0,
+      AmountPaid: 0,
+      AmountReceived: 0,
+      invoicesUpdatedAt: new Date()
+    }
+  }
+  csRef.set(data,{ merge: true }).then(res => {
+    callback(true)
+  }).catch(err => {
+    console.log(err)
+    callback(false)
+  })
+}
+
 function getXeroFullInvoice(userId, clientSystemId, xeroClient, invoiceId, callback){
   xeroClient.core.invoices.getInvoice(invoiceId)
   .then(function(full_invoice) {
@@ -397,6 +418,7 @@ function getXeroFullInvoice(userId, clientSystemId, xeroClient, invoiceId, callb
     delete tmpOrg.Payments
     delete tmpOrg.Contact.Addresses
     delete tmpOrg.Contact.Phones
+    tmpOrg.updatedAt = new Date()
     var csRef = firestore.collection('client_systems').doc(clientSystemId).collection('invoices').doc(invoiceId);
     var setWithOptions = csRef.set(tmpOrg, { merge: true }).then(invId => {
       deleteCollection(`client_systems/${clientSystemId}/invoices/${invoiceId}/line_items`).then(res =>{
@@ -427,20 +449,23 @@ function getXeroFullInvoice(userId, clientSystemId, xeroClient, invoiceId, callb
   })
 }
 
-function getXeroInvoices(userId, clientSystemId, callback){
-  //var csRef = firestore.collection('client_systems').doc(clientSystemId);
+function getXeroInvoices(userId, clientSystemId, callback){  
   getXeroClientFromDB(userId, clientSystemId, xeroClient => {
     xeroClient.core.invoices.getInvoices()
     .then(function(invoices) {
-      //console.log(organisations);
-      var count = 1;
-      invoices.forEach(function(invoice) {
-        (function(ind) {
-          setTimeout(getXeroFullInvoice, 1100 * ind, userId, clientSystemId, xeroClient, invoice.InvoiceID, success => {console.log('Invoice Added')})
-        })(count++);        
-      })
-      //sendNotification(userId,'Invoices Updated')
-      callback(true);
+      resetXeroInvoicesStats(userId,clientSystemId, success => {
+        if(success){
+          var count = 1;
+          invoices.forEach(function(invoice) {
+            (function(ind) {
+              setTimeout(getXeroFullInvoice, 2000 * ind, userId, clientSystemId, xeroClient, invoice.InvoiceID, success => {console.log('Invoice Added')})
+            })(count++);        
+          })
+          callback(true);
+        } else {
+          callback(false)
+        }
+      })      
     })
     .catch(function(err) {
       console.log(err)
@@ -499,14 +524,14 @@ exports.userLogin = functions.firestore
   const data = event.data.data();
   const previousData = event.data.previous.data();  
   var csRef = firestore.collection('client_systems').doc(data.selected_client_system.id);
-  var getDoc = csRef.get()
+  return csRef.get()
   .then(doc => {
     if (!doc.exists) {
       console.log('No such client system!');  
     } else {
       const csDoc = doc.data();
       if(csDoc.status == 'connected'){
-        sendNotification(data.uid,'Refreshing Xero Organizations')
+        //sendNotification(data.uid,'Refreshing Xero Organizations')
         getXeroOrganizations(data.uid, data.selected_client_system.id, success => {
           if(!success){
             var setWithOptions = csRef.set({status: 'disconnected'}, { merge: true });
@@ -517,5 +542,56 @@ exports.userLogin = functions.firestore
   })
   .catch(err => {
     console.log('Error getting client system document', err);
+  });  
+});
+
+exports.updateInvoicesStats = functions.firestore
+.document('client_systems/{clientSystemId}/invoices/{invoiceId}')
+.onWrite(event => {
+  console.log(`client_systems/${event.params.clientSystemId}/invoices/${event.params.invoiceId}`)
+  var newInvoice = event.data.data();
+
+  var csRef = firestore.collection('client_systems').doc(event.params.clientSystemId);
+
+  // console.log(`Type: ${newInvoice.Type}`)
+  // console.log(`Status: ${newInvoice.Status}`)
+  // console.log(`AmountDue: ${newInvoice.AmountDue}`)
+  // console.log(`AmountPaid: ${newInvoice.AmountPaid}`)
+  // return true
+  
+  var transaction = firestore.runTransaction(t => {
+    return t.get(csRef).then(csDoc => {
+      var data = {InvoicesStats:{}};
+      data.InvoicesStats = csDoc.data().InvoicesStats;
+      if(newInvoice.Type == 'ACCREC'){
+        if(newInvoice.Status == 'AUTHORISED'){
+          data.InvoicesStats.NotPaidReceivebleInvoices = csDoc.data().InvoicesStats.NotPaidReceivebleInvoices + 1;
+          data.InvoicesStats.AmountOwed = csDoc.data().InvoicesStats.AmountOwed + newInvoice.AmountDue;
+          data.InvoicesStats.AmountReceived = csDoc.data().InvoicesStats.AmountReceived + newInvoice.AmountPaid;
+        } else if(newInvoice.Status == 'PAID'){
+          data.InvoicesStats.PaidReceivebleInvoices = csDoc.data().InvoicesStats.PaidReceivebleInvoices + 1;
+          data.InvoicesStats.AmountOwed = csDoc.data().InvoicesStats.AmountOwed + newInvoice.AmountDue;
+          data.InvoicesStats.AmountReceived = csDoc.data().InvoicesStats.AmountReceived + newInvoice.AmountPaid;
+        }
+      } else {
+        if(newInvoice.Status == 'AUTHORISED'){
+          data.InvoicesStats.NotPaidPayableInvoices = csDoc.data().InvoicesStats.NotPaidPayableInvoices + 1;
+          data.InvoicesStats.AmountOwing = csDoc.data().InvoicesStats.AmountOwing + newInvoice.AmountDue;
+          data.InvoicesStats.AmountPaid = csDoc.data().InvoicesStats.AmountPaid + newInvoice.AmountPaid;
+        } else if(newInvoice.Status == 'PAID'){
+          data.InvoicesStats.PaidPayableInvoices = csDoc.data().InvoicesStats.PaidPayableInvoices + 1;
+          data.InvoicesStats.AmountOwing = csDoc.data().InvoicesStats.AmountOwing + newInvoice.AmountDue;
+          data.InvoicesStats.AmountPaid = csDoc.data().InvoicesStats.AmountPaid + newInvoice.AmountPaid;
+        }
+      }
+      console.log(data)
+      t.update(csRef, data);
+    });
+  })
+  .then(result => {
+      console.log('Transaction success!');
+  })
+  .catch(err => {
+      console.log('Transaction failure:', err);
   });  
 });
