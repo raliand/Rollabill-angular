@@ -10,6 +10,7 @@ import { JwksValidationHandler } from 'angular-oauth2-oidc';
 import { AuthConfig } from 'angular-oauth2-oidc';
 import 'rxjs/add/operator/switchMap'
 
+
 export interface User {
   uid: string;
   email: string;

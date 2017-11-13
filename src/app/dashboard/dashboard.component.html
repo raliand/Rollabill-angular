@@ -1,6 +1,6 @@
 <div class="main-content">
-    <div *ngIf="auth.clientSystem | async as clientSystem">
-        <div class="container-fluid">
+    <div *ngIf="auth.clientSystem | async as clientSystem">            
+        <div class="container-fluid" *ngIf="aggregatedStats$ | async as stats">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="card card-stats" >
@@ -9,7 +9,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Active Invoices<br/>To Pay/To Receive</p>
-                            <h3 class="title">{{clientSystem.InvoicesStats.NotPaidPayableInvoices}}/{{clientSystem.InvoicesStats.NotPaidReceivebleInvoices}}</h3>
+                            <h3 class="title" >{{clientSystem.NotPaidPayableInvoices}}/{{clientSystem.NotPaidReceivebleInvoices}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -25,7 +25,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Amount<br/>To Be Received</p>
-                            <h3 class="title">${{clientSystem.InvoicesStats.AmountOwed | number:'.2'}}</h3>
+                            <h3 class="title">{{clientSystem.AmountOwed | currency:clientSystem.BaseCurrency:'symbol'}} <div *ngIf="stats">{{getStat('AmountOwed') | async}}</div></h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -41,7 +41,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Amount<br/>To Be Payed</p>
-                            <h3 class="title">${{clientSystem.InvoicesStats.AmountOwing | number:'.2'}}</h3>
+                            <h3 class="title">{{clientSystem.AmountOwing | currency:clientSystem.BaseCurrency:'symbol'}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -57,7 +57,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Paid Invoices<br/>Payable/Receivable</p>
-                            <h3 class="title">{{clientSystem.InvoicesStats.PaidPayableInvoices}}/{{clientSystem.InvoicesStats.PaidReceivebleInvoices}}</h3>
+                            <h3 class="title">{{clientSystem.PaidPayableInvoices}}/{{clientSystem.PaidReceivebleInvoices}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -74,7 +74,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Total Amount<br/>Paid</p>
-                            <h3 class="title">${{clientSystem.InvoicesStats.AmountPaid | number:'.2'}}</h3>
+                            <h3 class="title">{{clientSystem.AmountPaid | currency:clientSystem.BaseCurrency:'symbol'}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -91,7 +91,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Total Amount<br/>Received</p>
-                            <h3 class="title">${{clientSystem.InvoicesStats.AmountReceived | number:'.2'}}</h3>
+                            <h3 class="title">{{clientSystem.AmountReceived | currency:clientSystem.BaseCurrency:'symbol'}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">

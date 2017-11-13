@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../core/auth.service';
 import * as firebase from 'firebase/app';
 import { Http, Headers } from '@angular/http';
+import { AngularFirestore, AngularFirestoreDocument, AngularFirestoreCollection } from 'angularfire2/firestore';
+import { FirestoreService} from '../core/firestore.service';
 import 'rxjs/add/operator/toPromise';
 
 
@@ -14,10 +16,25 @@ export class UserProfileComponent implements OnInit {
 
   public loading = false;
 
-  constructor(public auth: AuthService, public http: Http) { }
+  constructor(public auth: AuthService, 
+              private afs: FirestoreService,
+              public http: Http) { }
 
   ngOnInit() {
   }
+
+  private updateClientSystemData(clientSystem) {
+    this.loading = true;
+    const data = {
+      Address0: {
+        City: clientSystem.Address0.City,
+        Country: clientSystem.Address0.Country,
+        PostalCode: clientSystem.Address0.PostalCode
+      }
+    }
+    this.afs.upsert(`client_systems/${clientSystem.id}`, data).then(res => this.loading = false)
+  }
+
 
   authoriseXero(){
     this.loading = true;
