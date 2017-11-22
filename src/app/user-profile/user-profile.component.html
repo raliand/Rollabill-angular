@@ -16,7 +16,7 @@
                             <div class="col-md-6">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">Company (disabled)</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.Name" disabled>
+                                    <input type="text" class="form-control" [value]="clientSystem?.Name" disabled>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -37,7 +37,7 @@
                             <div class="col-md-6">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">Tax Number</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.TaxNumber" disabled>
+                                    <input type="text" class="form-control" [value]="clientSystem?.TaxNumber" disabled>
                                 </div>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                             <div class="col-md-12">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">Adress</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.Address0.AddressLine1+', '+clientSystem.Address0.AddressLine2" >
+                                    <input type="text" class="form-control" [value]="clientSystem?.Address0?.AddressLine1+', '+clientSystem?.Address0?.AddressLine2" >
                                 </div>
                             </div>
                         </div>
@@ -55,19 +55,19 @@
                             <div class="col-md-4">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">City</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.Address0.City">
+                                    <input type="text" class="form-control" [value]="clientSystem?.Address0?.City">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">Country</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.Address0.Country">
+                                    <input type="text" class="form-control" [value]="clientSystem?.Address0?.Country">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group form-black label-floating is-empty">
                                     <label class="control-label">Postal Code</label>
-                                    <input type="text" class="form-control" [value]="clientSystem.Address0.PostalCode">
+                                    <input type="text" class="form-control" [value]="clientSystem?.Address0?.PostalCode">
                                 </div>
                             </div>
                         </div>
@@ -84,8 +84,18 @@
                             </div>
                         </div> -->
 
-                        <!-- <button class="btn btn-danger btn-round" (click)="updateClientSystemData(clientSystem)" >Update Profile</button> -->
-                        <button class="btn btn-danger btn-round" (click)="getXeroInvoices()" >Update Profile</button>
+                        <button class="btn btn-danger btn-round" (click)="updateClientSystemData(clientSystem)" >Update Profile</button>
+                        <div class="dropdown">
+                            <a href="#" class="btn dropdown-toggle" data-toggle="dropdown">
+                                Add Accounting System
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a (click)="addClientSystem('xero', user.uid, user.selected_client_system.id)">Xero</a></li>
+                                <li><a (click)="addClientSystem('sageone', user.uid, user.selected_client_system.id)">Sage One</a></li>
+                            </ul>
+                        </div>
+                        <!-- <button class="btn btn-danger btn-round" (click)="authorise(clientSystem.type)" >Update Profile</button> -->
                         <div class="clearfix"></div>
                     </form>
                     </div>
@@ -113,7 +123,7 @@
                 <div class="card card-profile">
                     <div class="card-avatar">
                         <a href="/user-profile">
-                            <img class="img" src="../assets/img/xero.png" />
+                            <img class="img" src="../assets/img/{{clientSystem?.type}}.png" />
                         </a>
                     </div>
         
@@ -123,7 +133,7 @@
                         <p class="card-content">
                             {{ clientSystem?.ShortCode }}
                         </p>
-                        <button class="btn btn-info btn-round" (click)="authoriseXero()">Connect to Xero</button>
+                        <button *ngIf="clientSystem.status == 'disconnected'" class="btn btn-info btn-round" (click)="authorise(clientSystem.type)">Connect to Xero</button>
                     </div>
                 </div>
             </div>

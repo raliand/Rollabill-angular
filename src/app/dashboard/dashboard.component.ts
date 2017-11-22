@@ -4,6 +4,9 @@ import { AuthService } from '../core/auth.service';
 import { Router } from '@angular/router';
 import { FirestoreService} from '../core/firestore.service';
 import { Observable } from 'rxjs/Observable';
+import * as firebase from 'firebase/app';
+import { Http, Headers } from '@angular/http';
+import 'rxjs/add/operator/toPromise';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/reduce';
 
@@ -19,29 +22,18 @@ export interface Invoice {
     ContactID: string;
     EmailAddress?: string;    
   };
-  Date: string;
-  DueDate: string;
-  InvoiceID: string;
+  Date?: string;
+  DueDate?: string;
+  InvoiceID?: string;
   InvoiceNumber: string;
-  Status: string;
-  Type: string;
+  Status?: string;
+  Type?: string;
 }
 
 export interface Contact {
   Name: string;
   ContactID: string;
   EmailAddress?: string;
-}
-
-export interface StatsData {
-  NotPaidPayableInvoices: number;
-  NotPaidReceivebleInvoices: number;
-  AmountOwing: number;
-  AmountOwed: number;
-  PaidPayableInvoices: number;
-  PaidReceivebleInvoices: number;
-  AmountPaid: number;
-  AmountReceived: number;
 }
 
 @Component({
@@ -51,20 +43,15 @@ export interface StatsData {
 })
 
 export class DashboardComponent implements OnInit {
-  invoicesPayable: Observable<Invoice[]>;
-  invoicesReceivable: Observable<Invoice[]>;
-  contacts: Observable<Contact[]>;
-  stats: Observable<StatsData[]>;
-  aggregatedStats$: Observable<StatsData>;
+  invoicesPayable: Observable<any[]>;
+  invoicesReceivable: Observable<any[]>;
+  contacts: Observable<any[]>;
+  public loading = false;
   
   constructor(public auth: AuthService,
+              public http: Http, 
               private afs: FirestoreService,
               private router: Router) {    
-  }
-
-  getStat(stat): Observable<number> {
-    return this.stats
-       .map(arr => arr.reduce((a, b) => {return a + b[stat]}, 0));
   }
   
   // startAnimationForLineChart(chart){
@@ -127,33 +114,60 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     
-    this.auth.clientSystem.take(1).subscribe(clientSystem => {
-      this.invoicesPayable = this.afs.colWithIds$<Invoice>(`client_systems/${clientSystem.id}/invoices`, ref => ref.where('Status', '==', 'AUTHORISED').where('Type', '==', 'ACCPAY'))
-      this.invoicesReceivable = this.afs.colWithIds$<Invoice>(`client_systems/${clientSystem.id}/invoices`, ref => ref.where('Status', '==', 'AUTHORISED').where('Type', '==', 'ACCREC'))
-      this.contacts = this.afs.colWithIds$<Contact>(`client_systems/${clientSystem.id}/contacts`, ref => ref.where('ContactStatus', '==', 'ACTIVE'))
-      this.stats = this.afs.colWithIds$<StatsData>(`client_systems/${clientSystem.id}/shards`)
-
-      const iStats = <StatsData>{
-        NotPaidPayableInvoices: 0,
-        NotPaidReceivebleInvoices: 0,
-        AmountOwing: 0,
-        AmountOwed: 0,
-        PaidPayableInvoices: 0,
-        PaidReceivebleInvoices: 0,
-        AmountPaid: 0,
-        AmountReceived: 0
-      };
-      this.aggregatedStats$ = this.stats.map((arr) => arr.reduce((a, b) => {
-        a.NotPaidPayableInvoices = a.NotPaidPayableInvoices + b.NotPaidPayableInvoices;
-        a.NotPaidReceivebleInvoices = a.NotPaidReceivebleInvoices + b.NotPaidReceivebleInvoices;
-        a.AmountOwing = a.AmountOwing + b.AmountOwing;
-        a.AmountOwed = a.AmountOwed + b.AmountOwed;
-        a.PaidPayableInvoices = a.PaidPayableInvoices + b.PaidPayableInvoices;
-        a.PaidReceivebleInvoices = a.PaidReceivebleInvoices + b.PaidReceivebleInvoices;
-        a.AmountPaid = a.AmountPaid + b.AmountPaid;
-        a.AmountReceived = a.AmountReceived + b.AmountReceived;
-        return a;
-      }, iStats));
+    this.auth.clientSystem.take(1).subscribe(cs =>{
+      var time = new Date().getTime() - new Date(cs.createdAt).getTime();
+      console.log(time/1000)
+      if(time/1000 < 60){
+          this.getEntity('company', cs.type)
+          this.getEntity('contacts', cs.type)
+          this.getEntity('items', cs.type)
+          this.getEntity('invoices', cs.type)
+      }
+    })
+    this.auth.clientSystem.subscribe(clientSystem => {      
+      if(clientSystem.type == 'xero'){
+        this.invoicesPayable = this.afs.colWithIds$<any>(`client_systems/${clientSystem._id}/invoices`, ref => ref.where('Status', '==', 'AUTHORISED').where('Type', '==', 'ACCPAY'))
+        this.invoicesReceivable = this.afs.colWithIds$<any>(`client_systems/${clientSystem._id}/invoices`, ref => ref.where('Status', '==', 'AUTHORISED').where('Type', '==', 'ACCREC'))
+        this.contacts = this.afs.colWithIds$<any>(`client_systems/${clientSystem._id}/contacts`, ref => ref.where('ContactStatus', '==', 'ACTIVE'))
+      }
+      if(clientSystem.type == 'sageone'){
+        console.log(clientSystem._id)
+        this.invoicesPayable = this.afs.colWithIds$<any>(`client_systems/${clientSystem._id}/purchase_invoices`)
+          .map(res => {return res
+            .map(item => {
+              //console.log(item)
+              return {
+                AmountPaid: item.total_paid,
+                AmountDue: item.outstanding_amount,
+                InvoiceNumber : item.displayed_as,
+                ...item
+              }
+            })
+          })
+        this.invoicesReceivable = this.afs.colWithIds$<Invoice>(`client_systems/${clientSystem._id}/sales_invoices`)
+          .map(res => {return res
+            .map(item => {
+              //console.log(item)
+              return {
+                AmountPaid: item.total_paid,
+                AmountDue: item.outstanding_amount,
+                InvoiceNumber : item.displayed_as,
+                ...item
+              }
+            })
+          })
+        this.contacts = this.afs.colWithIds$<Contact>(`client_systems/${clientSystem._id}/contacts`)
+          .map(res => {return res
+            .map(item => {
+              //console.log(item)
+              return {
+                Name : item.displayed_as,
+                ContactID : item.id,
+                ...item
+              }
+            })
+          })
+      }
     })
 
 
@@ -244,5 +258,17 @@ export class DashboardComponent implements OnInit {
   //     //start animation for the Emails Subscription Chart
   //     this.startAnimationForBarChart(emailsSubscriptionChart);
   }
+  
+    getEntity(entity, type){
+      this.loading = true;
+      const url = `https://us-central1-rollabill-5503a.cloudfunctions.net/app/api/${entity}/${type}`;
+      // const url = `http://localhost:5000/rollabill-5503a/us-central1/app/api/${entity}/${type}`;
+      firebase.auth().currentUser.getIdToken()
+      .then(authToken => {
+        const headers = new Headers({'Authorization': 'Bearer ' + authToken });
+        return this.http.get(url, { headers: headers }).toPromise()
+      })
+      .then(res => this.loading = false)
+    }
 
 }

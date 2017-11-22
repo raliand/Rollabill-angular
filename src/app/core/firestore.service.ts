@@ -60,8 +60,8 @@ export class FirestoreService {
     return this.col(ref, queryFn).snapshotChanges().map(actions => {
       return actions.map(a => {
         const data = a.payload.doc.data();
-        const id = a.payload.doc.id;
-        return { id, ...data };
+        const _id = a.payload.doc.id;
+        return { _id, ...data };
       });
     });
   }
@@ -78,8 +78,8 @@ export class FirestoreService {
     return this.doc(ref).snapshotChanges()
                 .map(a => {
                   const data = a.payload.data();
-                  const id = a.payload.id;
-                  return { id, ...data };
+                  const _id = a.payload.id;
+                  return { _id, ...data };
                 });
   }
 

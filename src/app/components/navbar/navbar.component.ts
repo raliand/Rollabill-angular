@@ -4,6 +4,8 @@ import { ROUTES } from '../sidebar/sidebar.component';
 import {Location, LocationStrategy, PathLocationStrategy} from '@angular/common';
 import * as firebase from 'firebase/app';
 import { Http, Headers } from '@angular/http';
+import {CapitalizePipe} from "../../capitalize.pipe";
+import { FirestoreService} from '../../core/firestore.service';
 import 'rxjs/add/operator/toPromise';
 
 @Component({
@@ -11,6 +13,7 @@ import 'rxjs/add/operator/toPromise';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
+
 export class NavbarComponent implements OnInit {
     private listTitles: any[];
     location: Location;
@@ -18,7 +21,7 @@ export class NavbarComponent implements OnInit {
     private sidebarVisible: boolean;
     public loading = false;
 
-    constructor(public auth: AuthService, location: Location,  private element: ElementRef, public http: Http) {
+    constructor(public auth: AuthService, location: Location,  private element: ElementRef, public http: Http, private afs: FirestoreService) {
       this.location = location;
           this.sidebarVisible = false;
     }
@@ -28,7 +31,7 @@ export class NavbarComponent implements OnInit {
       const navbar: HTMLElement = this.element.nativeElement;
       this.toggleButton = navbar.getElementsByClassName('navbar-toggle')[0];
     }
-
+    
     sidebarOpen() {
         const toggleButton = this.toggleButton;
         const body = document.getElementsByTagName('body')[0];
@@ -70,51 +73,33 @@ export class NavbarComponent implements OnInit {
       return 'Dashboard';
     }
 
-    authoriseXero(){
-        this.loading = true;
-        const url = 'https://us-central1-rollabill-5503a.cloudfunctions.net/app/authorise';
-        //const url = 'http://localhost:5000/rollabill-5503a/us-central1/app/authorise';
-        firebase.auth().currentUser.getIdToken()
-        .then(authToken => {
-          const headers = new Headers({'Authorization': 'Bearer ' + authToken });
-          return this.http.get(url, { headers: headers }).toPromise()
-        })
-        .then(res => window.location.href = res.text())
-      }
-    
-      getXeroContacts(){
-        this.loading = true;
-        const url = 'https://us-central1-rollabill-5503a.cloudfunctions.net/app/xero_contacts';
-        //const url = 'http://localhost:5000/rollabill-5503a/us-central1/app/xero_contacts';
-        firebase.auth().currentUser.getIdToken()
-        .then(authToken => {
-          const headers = new Headers({'Authorization': 'Bearer ' + authToken });
-          return this.http.get(url, { headers: headers }).toPromise()
-        })
-        .then(res => this.loading = false)
-      }
-    
-      getXeroInvoices(){
-        this.loading = true;
-        const url = 'https://us-central1-rollabill-5503a.cloudfunctions.net/app/xero_invoices';
-        //const url = 'http://localhost:5000/rollabill-5503a/us-central1/app/xero_invoices';
-        firebase.auth().currentUser.getIdToken()
-        .then(authToken => {
-          const headers = new Headers({'Authorization': 'Bearer ' + authToken });
-          return this.http.get(url, { headers: headers }).toPromise()
-        })
-        .then(res => this.loading = false)
-      }
-    
-      getXeroItems(){
-        this.loading = true;
-        const url = 'https://us-central1-rollabill-5503a.cloudfunctions.net/app/xero_items';
-        //const url = 'http://localhost:5000/rollabill-5503a/us-central1/app/xero_items';
-        firebase.auth().currentUser.getIdToken()
-        .then(authToken => {
-          const headers = new Headers({'Authorization': 'Bearer ' + authToken });
-          return this.http.get(url, { headers: headers }).toPromise()
-        })
-        .then(res => this.loading = false)
-      }
+    authorise(type){
+      this.loading = true;
+      const url = `https://us-central1-rollabill-5503a.cloudfunctions.net/app/authorise/${type}`;
+    //   const url = `http://localhost:5000/rollabill-5503a/us-central1/app/authorise/${type}`;
+      firebase.auth().currentUser.getIdToken()
+      .then(authToken => {
+        const headers = new Headers({'Authorization': 'Bearer ' + authToken });
+        return this.http.get(url, { headers: headers }).toPromise()
+      })
+      .then(res => window.location.href = res.text()).catch(err => {
+        console.log(err)
+      })
+    }
+  
+    getEntity(entity, type){
+      this.loading = true;
+      const url = `https://us-central1-rollabill-5503a.cloudfunctions.net/app/api/${entity}/${type}`;
+    //   const url = `http://localhost:5000/rollabill-5503a/us-central1/app/api/${entity}/${type}`;
+      firebase.auth().currentUser.getIdToken()
+      .then(authToken => {
+        const headers = new Headers({'Authorization': 'Bearer ' + authToken });
+        return this.http.get(url, { headers: headers }).toPromise()
+      })
+      .then(res => this.loading = false)
+    }
+
+    selectClientSystem(systemId, userId){
+      this.afs.upsert(`users/${userId}`, {selected_client_system: this.afs.doc(`client_systems/${systemId}`).ref})
+    }
 }

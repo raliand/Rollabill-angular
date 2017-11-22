@@ -23,6 +23,7 @@ import { AngularFireModule } from 'angularfire2';
 import { CoreModule } from './core/core.module';
 import { AuthGuard } from './core/auth.guard';
 import { LoginComponent } from './login/login.component';
+import { CapitalizePipe } from "./capitalize.pipe";
 import { OAuthModule } from 'angular-oauth2-oidc';
 import { LoadingModule } from 'ngx-loading';
 
@@ -47,7 +48,7 @@ const firebaseConfig = {
     NotificationsComponent,
     UpgradeComponent,
     LoginComponent,
-
+    CapitalizePipe
   ],
   imports: [
     BrowserModule,

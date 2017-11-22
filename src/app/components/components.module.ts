@@ -19,7 +19,7 @@ import { LoadingModule } from 'ngx-loading';
     SidebarComponent
   ],
   exports: [
-    FooterComponent,
+    // FooterComponent,
     NavbarComponent,
     SidebarComponent
   ]

@@ -1,6 +1,5 @@
 <div class="main-content">
     <div *ngIf="auth.clientSystem | async as clientSystem">            
-        <div class="container-fluid" *ngIf="aggregatedStats$ | async as stats">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-6">
                     <div class="card card-stats" >
@@ -25,7 +24,7 @@
                         </div>
                         <div class="card-content">
                             <p class="category">Amount<br/>To Be Received</p>
-                            <h3 class="title">{{clientSystem.AmountOwed | currency:clientSystem.BaseCurrency:'symbol'}} <div *ngIf="stats">{{getStat('AmountOwed') | async}}</div></h3>
+                            <h3 class="title">{{clientSystem.AmountOwed | currency:clientSystem.BaseCurrency:'symbol'}}</h3>
                         </div>
                         <div class="card-footer">
                             <div class="stats">
@@ -308,6 +307,5 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 </div>

@@ -12,15 +12,24 @@
         <div class="collapse navbar-collapse">                
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown" *ngIf="auth.clientSystem | async as clientSystem">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        {{clientSystem.Name}}
+                    </a>
+                    <ul class="nav nav-pills nav-pills-info nav-stacked dropdown-menu">
+                        <li *ngFor="let system of auth.userClientSystems | async" ><a (click)="selectClientSystem(system.client_system_id, system.user_id)" data-toggle="tab">{{system.name}}</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown" *ngIf="auth.clientSystem | async as clientSystem">
                     <ngx-loading [show]="loading" [config]="{ backdropBorderRadius: '14px' }"></ngx-loading>
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         {{clientSystem.status}}
                     </a>
                     <ul [ngSwitch]="clientSystem?.status" class="dropdown-menu">
-                        <li *ngSwitchCase="'disconnected'"><a class="nav-info" (click)="authoriseXero()">Connect to Xero</a></li>
-                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getXeroInvoices()">Get Xero Invoices</a></li>
-                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getXeroContacts()">Get Xero Contacts</a></li>
-                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getXeroItems()">Get Xero Items</a></li>
+                        <li *ngSwitchCase="'disconnected'"><a class="nav-info" (click)="authorise(clientSystem.type)">Connect to {{clientSystem.type}}</a></li>
+                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getEntity('company',clientSystem.type)">Get {{clientSystem.type}} Company</a></li>
+                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getEntity('invoices',clientSystem.type)">Get {{clientSystem.type}} Invoices</a></li>
+                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getEntity('contacts',clientSystem.type)">Get {{clientSystem.type}} Contacts</a></li>
+                        <li *ngSwitchCase="'connected'"><a class="nav-info"  (click)="getEntity('items',clientSystem.type)">Get {{clientSystem.type}} Items</a></li>
                     </ul>
                 </li>
                 <li>
