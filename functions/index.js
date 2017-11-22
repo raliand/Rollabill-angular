@@ -699,8 +699,10 @@ app.get('/access/:type/:clientSystemId', (req, res) => {
     saveXeroAuth(clientSystemId, req, success => {
       if (success) {
         //console.log('Xero authorized')
+        res.redirect('https://rollabill-5503a.firebaseapp.com/dashboard')
       } else {
         console.log('Error authorizing Xero')
+        res.redirect('https://rollabill-5503a.firebaseapp.com/dashboard')
         //sendNotification(userId, 'Error authorizing Xero')
       }
     })

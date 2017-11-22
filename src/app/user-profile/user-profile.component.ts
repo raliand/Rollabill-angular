@@ -51,7 +51,7 @@ export class UserProfileComponent implements OnInit {
 
   addClientSystem(type, userId, currentSystemId){
     this.loading = true;
-    const data = {
+    var data = {
       AmountOwed: 0,
       AmountOwing: 0,
       AmountPaid: 0,
@@ -61,6 +61,8 @@ export class UserProfileComponent implements OnInit {
       PaidPayableInvoices: 0,
       PaidReceivebleInvoices: 0,
       Name: `New ${type}`,
+      status: 'disconnected',
+      invoicesUpdatedAt: new Date('1900-01-01'),
       type: type
     }
     this.afs.add('client_systems', data).then(newCS => {
