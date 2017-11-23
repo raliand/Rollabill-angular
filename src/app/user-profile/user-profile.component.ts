@@ -37,8 +37,8 @@ export class UserProfileComponent implements OnInit {
 
   authorise(type){
     this.loading = true;
-    const url = 'https://us-central1-rollabill-5503a.cloudfunctions.net/app/authorise_freeagent';
-    // const url = `http://localhost:5000/rollabill-5503a/us-central1/app/authorise/${type}`;
+    const url = `https://us-central1-rollabill-5503a.cloudfunctions.net/app/authorise/${type}`;
+  //   const url = `http://localhost:5000/rollabill-5503a/us-central1/app/authorise/${type}`;
     firebase.auth().currentUser.getIdToken()
     .then(authToken => {
       const headers = new Headers({'Authorization': 'Bearer ' + authToken });
